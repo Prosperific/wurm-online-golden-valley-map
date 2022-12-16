@@ -1,0 +1,564 @@
+<!-- Base files copied from http://cadence.yaga.host/ -->
+<!-- Then adapted to Golden Valley by Atlas -->
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Golden Valley</title>
+  <link rel="stylesheet" href="styles.css" type="text/css">
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="loader">
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+  </div>
+  <div style="display:none;">
+    <img src="guard_tower.png" id="img-tower"/>
+    <img src="clay.png" id="img-clay"/>
+    <img src="tar_barrel.png" id="img-tar"/>
+    <img src="special.png" id="img-special"/>
+    <img src="lodestone.png" id="img-lodestone"/>
+  </div>
+  <div id="location" class="loading"></div>
+  <div id="legend-btn" class="loading"></div>
+  <div id="zoom-in" class="loading">+</div>
+  <div id="zoom-out" class="loading">-</div>
+  <div class="section hide" id="section-legend">
+    <h2>Legend</h2>
+    <img src="legend.png" />
+  </div>
+  <div id="sidebar" class="loading">
+    <h1>Golden Valley</h1>
+    <div class="section" id="section-map">
+      <h2>Map type</h2>
+      <div><label><input type="radio" name="map-type" value="map-type-terrain" checked/> Terrain</label></div>
+      <div style="display: none;"><label><input type="radio" name="map-type" value="map-type-topo"/> Topographic</label></div>
+    </div>
+    <div class="section" id="section-layers">
+      <h2>Layers</h2>
+      <div><label><input id="layers-deeds" type="checkbox" checked /> Deeds (D)</label></div>
+      <div style="display: none;"><label><input id="layers-highways" type="checkbox" checked /> Highways (H)</label></div>
+      <div style="display: none;"><label><input id="layers-bridges" type="checkbox" checked/> Bridges (B)</label></div>
+      <div style="display: none;"><label><input id="layers-tunnels" type="checkbox" checked/> Tunnels (T)</label></div>
+      <div style="display: none;"><label><input id="layers-resources" type="checkbox" /> Resources (R)</label></div>
+      <div><label><input id="layers-specials" type="checkbox" /> Special places (S)</label></div>
+      <div style="display: none;"><label><input id="layers-grid" type="checkbox" /> Grid (G)</label></div>
+    </div>
+    <div class="section" id="section-location">
+      <h2>Selected Location</h2>
+      <div id="location-selected">
+        <input type="text" value="Click to select" />
+      </div>
+    </div>
+    <div class="section" id="section-search">
+      <div id=find-header>Find
+        <div id="find-deed"><label><input type="radio" id="rad-find-deed" name="find-type" value="find-type-deed" checked/>deed</label></div>
+        <div id="find-special"><label><input type="radio" name="find-type" value="find-type-special"/>special</label></div>
+      </div>
+
+      <select>
+        <option></option>
+      </select>
+    </div>
+  </div>
+  <div id="footer-text" class="loading">
+    Latest update: <span id="last-update">dd.mm.yy</span><br>
+    Copied from: <a href="http://cadence.yaga.host/" target="_blank">http://cadence.yaga.host/</a><br>
+    Adapted for Golden Valley by: Atlas
+  </div>
+  <canvas id="map" width="2048" height="2048"></canvas>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" type="text/javascript"></script>
+  <script src="fabric.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/g/filesaver.js"></script>
+  <script src="canvas-toBlob.js"></script>
+
+  <script>window.sheetData = {
+    "valueRanges": [
+      {
+        "range": "Deeds!A2:E1000",
+        "majorDimension": "ROWS",
+        "values": [
+
+          // Player owned deeds
+          [
+            "Mount Atlas",
+            "928",
+            "1633"
+          ],
+          [
+            "Second Sunrise",
+            "2613",
+            "1927"
+          ],
+          [
+            "WyldWynd",
+            "1097",
+            "827"
+          ],
+
+          // GM deeds
+          [
+            "Beginnings",
+            "2190",
+            "1284",
+            "STA"
+          ],
+          [
+            "Boar Hill",
+            "1132",
+            "643",
+            "STA"
+          ],
+          [
+            "Gateways",
+            "3635",
+            "1921",
+            "STA"
+          ],
+          [
+            "Westerford",
+            "2911",
+            "1429",
+            "STA"
+          ],
+
+          // Disbanded deeds
+          [
+            "Academy Bootcamp",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Academy Cantonment",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Academy Gardens",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Arachnid Pebble",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Bayford Village",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Cherrywood Hill",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Darq Summit",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Disbanding This",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Divergence Keep",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "First Light",
+            "2971",
+            "2961",
+            "MAR RIG"
+          ],
+          [
+            "Fort Isengard",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Fort Troll",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Glitterdale",
+            "1378",
+            "1134",
+            "MAR TOP"
+          ],
+          [
+            "Haha Ur Mum Gae",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "House Of Punk",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Hovel Farm",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Khazad Dum",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Kijotoki",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Lakeside",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Lemon Grove",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Libila's Gate",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Lonesome Roads",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Lost Souls",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Mesdeahtis' Homestead",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Mrw Recruitment Center",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "New Dawn",
+            "1904",
+            "2172",
+            "MAR RIG"
+          ],
+          [
+            "New Hope",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Newhope",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Paradise",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Pineapple Belongs On Pizza",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Sancta Villa",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Serenity Grove",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Templar Bug Test",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "The King's Academy",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "The Kings Academy",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "The Last Stand",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "The Return",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Thunder Bay",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Twin Willows",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Vagrant Hill",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Valley Forge",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "We're Not Lost",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "West Moon Falling",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Wildwind",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Wolf Peak",
+            "0",
+            "0",
+            "HID"
+          ],
+          [
+            "Wurm Town",
+            "0",
+            "0",
+            "HID"
+          ]
+        ]
+      },
+    //   {
+    //   "range": "Highways!A2:B1000",
+    //   "majorDimension": "ROWS",
+    //   "values": [
+    //     [
+    //     "L16 to P16",
+    //     "[[1837,2062],[1837,2114],[1821,2114],[1723,2212],[1723,2407],[1709,2421],[1709,2480],[1888,2659],[1888,2833],[1893,2838]]"
+    //     ]
+    //   ]
+    //   },
+    //   {
+    //   "range": "Bridges!A2:E1000",
+    //   "majorDimension": "ROWS",
+    //   "values": [
+    //     [
+    //     "",
+    //     "601",
+    //     "2057",
+    //     "601",
+    //     "2066"
+    //     ]
+    //   ]
+    //   },
+    //   {
+    //   "range": "Tunnels!A2:I1000",
+    //   "majorDimension": "ROWS",
+    //   "values": [
+    //     [
+    //     "",
+    //     "595",
+    //     "2063",
+    //     "631",
+    //     "2063",
+    //     "TRUE",
+    //     "",
+    //     "TRUE",
+    //     "L10"
+    //     ]
+    //   ]
+    //   },
+      {
+        "range": "Resources!A2:E1000",
+        "majorDimension": "ROWS",
+        "values": [
+          [
+            "HoTS Lake",
+            "1565",
+            "2525",
+            "BodyOfWater"
+          ],
+          [
+            "Glitterdale@Lake",
+            "1400",
+            "800",
+            "BodyOfWater"
+          ],
+          [
+            "Bottleneck@Bay",
+            "625",
+            "1125",
+            "BodyOfWater"
+          ],
+          [
+            "First Light@Lake",
+            "2910",
+            "2410",
+            "BodyOfWater"
+          ],
+          [
+            "Emerald@Bay",
+            "2138",
+            "582",
+            "BodyOfWater"
+          ],
+          [
+            "Catfish@Oasis",
+            "1608",
+            "1636",
+            "BodyOfWater"
+          ]
+        ]
+      },
+      {
+        "range": "Special!A2:E1000",
+        "majorDimension": "ROWS",
+        "values": [
+          [
+            "Redbaron 42",
+            "2642",
+            "1796",
+            "GuardTowerFreedom"
+          ],
+          [
+            "Bardofwurm 962",
+            "1950",
+            "2224",
+            "GuardTowerFreedom",
+            "LEF"
+          ],
+          [
+            "Bardofwurm 946",
+            "1930",
+            "2108",
+            "GuardTowerFreedom",
+            "LEF"
+          ],
+          [
+            "Bardofwurm 642",
+            "2252",
+            "2522",
+            "GuardTowerFreedom"
+          ],
+          [
+            "Bardofwurm 898",
+            "2925",
+            "2930",
+            "GuardTowerFreedom",
+            "LEF"
+          ],
+          [
+            "Bardofwurm 114",
+            "2925",
+            "2981",
+            "GuardTowerFreedom",
+            "LEF"
+          ],
+          [
+            "Bardofwurm 330",
+            "1336",
+            "1142",
+            "GuardTowerFreedom",
+            "LEF"
+          ],
+          [
+            "Bardofwurm 546",
+            "1336",
+            "1183",
+            "GuardTowerFreedom",
+            "LEF"
+          ]
+        ]
+      },
+      {
+        "range": "System!A2:B1000",
+        "majorDimension": "ROWS",
+        "values": [
+          [
+            "12\/16\/2022"
+          ]
+        ]
+      }
+    ]
+    };</script>  <script src="map.js"></script>
+  <script>$(function () {
+    new map();
+  });</script>
+</body>
+</html>
